@@ -2,6 +2,26 @@
 
 ## Ressources
 
+### Youtube:
+
+Some channels that you should follow on Youtube. They are all related to machine learning, but some of them talk about maths, statistics, computer science or whatever.
+
+In English:
+
+- [Siraj Raval](https://www.youtube.com/channel/UCWN3xxRkmTPmbKwht9FuE5A): my favorite!
+- [Welch Lab](https://www.youtube.com/channel/UConVfxXodg78Tzh5nNu85Ew): my second favorite!
+- [Coding Maths](https://www.youtube.com/channel/UCF6F8LdCSWlRwQm_hfA2bcQ)
+- [Computerphile](https://www.youtube.com/channel/UC9-y-6csu5WGm29I7JiwpnA)
+- [Data School](https://www.youtube.com/channel/UCnVzApLJE2ljPZSeQylSEyg)
+- [DeepLearning.tv](https://www.youtube.com/channel/UC9OeZkIwhzfv-_Cb7fCikLQ)
+- [ZettaBytes](https://www.youtube.com/channel/UCfY6ovyFMaw30NRs-KrxrWw)
+- [Two minutes paper](https://www.youtube.com/user/keeroyz)
+
+In French:
+
+- [La statistique expliquée à mon chat](https://www.youtube.com/channel/UCWty1tzwZW_ZNSp5GVGteaA)
+- [Hugo Larochelle](https://www.youtube.com/channel/UCiDouKcxRmAdc5OeZdiRwAg)
+
 ### A classer :
 
 - https://github.com/rewonc/awesome-machine-learning
