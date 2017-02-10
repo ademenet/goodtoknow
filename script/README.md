@@ -41,5 +41,5 @@ Open your browser:
 ```
 localhost:8888
 ```
-(https://coderwall.com/p/ohk6cg/remote-access-to-ipython-notebooks-via-ssh)[Source]
+[Source](https://coderwall.com/p/ohk6cg/remote-access-to-ipython-notebooks-via-ssh)
 

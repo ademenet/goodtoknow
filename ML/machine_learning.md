@@ -2,6 +2,12 @@
 
 ## Ressources
 
+### Ebooks
+
+2017/02/10
+
+- [100+ Free Data Science Books for 2017](http://www.learndatasci.com/free-data-science-books/?utm_campaign=Data%2BElixir&utm_medium=email&utm_source=Data_Elixir_118)
+
 ### Youtube:
 
 Some channels that you should follow on Youtube. They are all related to machine learning, but some of them talk about maths, statistics, computer science or whatever.
