@@ -15,3 +15,30 @@ Gives you:
 ```
 
 Beautiful, isn't it?
+
+### Acces to Ipython notebook remotely
+
+From remote server:
+
+```bash
+remote_user@remote_host$ ipython notebook --no-browser --port=8889
+```
+
+On local machine:
+
+```bash
+local_user@local_host$ ssh -N -f -L localhost:8888:localhost:8889 remote_user@remote_host
+```
+
+`-N`: no remote commands will be executed
+
+`-f`: SSH go to background (we will need to kill the process)
+
+`-L`: port forwarding configuration
+
+Open your browser:
+
+```
+localhost:8888
+```
+
