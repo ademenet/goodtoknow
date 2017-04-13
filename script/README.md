@@ -51,3 +51,9 @@ Open a terminal on Mac OS X:
 osascript -e'set text item delimiters to linefeed' -e'tell app "google chrome" to url of tabs of window 1 as text'
 ```
 
+### Start a Docker
+
+```
+docker-machine create -d virtualbox docker-vm
+eval $(docker-machine env docker-vm)
+```
