@@ -18,14 +18,13 @@ for iter = 1:num_iters
     %
 
 
-
-
-
-
-
-
-
-
+    tmp_theta1 = theta(1) - alpha * (1/m) * sum((X*theta) - y);
+    tmp_theta2 = theta(2) - alpha * (1/m) * sum(X(:,2)' * ((X*theta) - y)); 
+    tmp_theta3 = theta(3) - alpha * (1/m) * sum(X(:,3)' * ((X*theta) - y)); 
+    theta(1) = tmp_theta1;
+    theta(2) = tmp_theta2;
+    theta(3) = tmp_theta3;
+    
 
     % ============================================================
 
