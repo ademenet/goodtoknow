@@ -39,8 +39,9 @@ grad = zeros(size(theta));
 h = sigmoid(X*theta);
 % This implementation use `sum` and `.*` operator rather than transpositions
 % like in ex2
-J = (1/m) * sum((-y) .* log(h) - (1-y) .* log(1-h));
-grad = (1/m) * (X' * (h-y));
+J = (1/m) * sum((-y) .* log(h) - (1-y) .* log(1-h)) + ((lambda/(2*m)) * sum(theta(2:end).^2));
+grad(1) = ((1/m) * (X' * (h-y)))(1);
+grad(2:end) = ((1/m) * (X' * (h-y)))(2:end) + ((lambda/m) * theta(2:end));
 
 % =============================================================
 
