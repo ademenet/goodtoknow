@@ -77,7 +77,14 @@ h = sigmoid(z2);
 
 % trace(A) = sum(diag(A))
 % Can use (sum(sum(A .* Identity(A)))) instead
-J = (1/m) * trace((-y)' * log(h) - (1-y)' * log(1-h)); % + ((lambda/(2*m)) * sum(Theta(2:end).^2));
+J = (1/m) * trace((-y)' * log(h) - (1-y)' * log(1-h)) + ((lambda/(2*m)) * (sum(sum(Theta1(2:end).^2)) + sum(sum(Theta2(2:end).^2))));
+
+for 
+d3 = h - y;
+d2 = Theta2' * d3 .* sigmoidGradient(z2);
+
+Theta2_grad = ;
+Theta1_grad;
 
 % -------------------------------------------------------------
 
