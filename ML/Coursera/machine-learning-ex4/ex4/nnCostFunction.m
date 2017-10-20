@@ -65,26 +65,38 @@ Theta2_grad = zeros(size(Theta2));
 % One hot encoded y.
 % We had y (5000, 1) and we got y (5000, 10), where if y = 10 the new
 % y =  (0, 0, 0, 0, 0, 0, 0, 0, 0, 1).
-y = eye(max(y))(y,:);
+% Note for me: num_labels == max(y)
+% Forward propagation starts here:
+y = eye(num_labels)(y,:);
 
-X1 = [ones(m, 1) X];
-z1 = X1 * Theta1';
-a1 = sigmoid(z1);
+a1 = [ones(m, 1) X];
+z2 = a1 * Theta1';
+a2 = sigmoid(z2);
 
-X2 = [ones(m, 1) a1];
-z2 = X2 * Theta2';
-h = sigmoid(z2);
+a2 = [ones(m, 1) a2];
+z3 = a2 * Theta2';
+a3 = sigmoid(z3); % a3 == h
 
 % trace(A) = sum(diag(A))
 % Can use (sum(sum(A .* Identity(A)))) instead
-J = (1/m) * trace((-y)' * log(h) - (1-y)' * log(1-h)) + ((lambda/(2*m)) * (sum(sum(Theta1(2:end).^2)) + sum(sum(Theta2(2:end).^2))));
+J = ((1/m) * trace((-y)' * log(a3) - (1-y)' * log(1-a3))) ...
+    + ((lambda/(2*m)) * (sum(sum(Theta1(:, 2:end).^2)) + sum(sum(Theta2(:, 2:end).^2))));
 
-for 
-d3 = h - y;
-d2 = Theta2' * d3 .* sigmoidGradient(z2);
+% Back propagation starts here:
+d3 = a3 - y;
+d2 = (d3 * Theta2(:,2:end)) .* sigmoidGradient(z2);
 
-Theta2_grad = ;
-Theta1_grad;
+Delta1 = d2' * a1;
+Delta2 = d3' * a2;
+
+% For regularization purpose: Theta1 and Theta2 are local copies, thus we can set
+% the first column (bias) to 0 and compute the regularization on these thetas.
+Theta1(:,1) = 0;
+Theta2(:,1) = 0;
+
+% Finally gradients:
+Theta1_grad = ((1/m) * Delta1) + (lambda/m) * Theta1;
+Theta2_grad = ((1/m) * Delta2) + (lambda/m) * Theta2;
 
 % -------------------------------------------------------------
 
