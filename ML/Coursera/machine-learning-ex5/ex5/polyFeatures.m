@@ -15,10 +15,8 @@ X_poly = zeros(numel(X), p);
 %
 % 
 
-
-
-
-
+exponents = 1:p;
+X_poly = bsxfun(@power, X, exponents);
 
 % =========================================================================
 
