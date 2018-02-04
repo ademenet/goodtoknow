@@ -24,22 +24,26 @@ GRID = np.zeros((3, 3), dtype=int)
 
 ## MINMAX #############################################################################################################
 
-def heuristic(state):
+def heuristic(state, depth):
     """
     """
-    pass
+    winner = check_state(state)
+    if winner == 2:
+        return 10 - depth
+    else:
+        return 10 + depth
 
 def minmax(state, maxplayer, depth):
     """
     """
-    # Get all moves from our state.
-    # np.argwhere returns arrays of indices.
-    moves = np.argwhere(state == 0)
     if depth == MAX_DEPTH or check_state(state) == 1:
         # If we reach the max depth stop and compute heuristic
         return heuristic(state)
-    elif maxplayer:
-        # Init evaluations to max value
+    # Get all moves from our state.
+    # np.argwhere returns arrays of indices.
+    moves = np.argwhere(state == 0)
+    if maxplayer:
+        # Init evaluations to min value
         evaluations = -np.inf
         # Iterate over each moves
         for move in moves:
@@ -54,10 +58,6 @@ def minmax(state, maxplayer, depth):
             new_state[move[0]][move[1]] = -1 
             heur = minmax(move, False, (depth - 1))
             evaluations = np.minimum(evaluations, heur)
-    return evaluations
-
-def ai_player():
-    minmax(np.copy(GRID), True, MAX_DEPTH)
     return X, Y
 
 ## TICTACTOE ##########################################################################################################
@@ -101,7 +101,7 @@ def check_state():
     elif np.any(sum_h == 3) or np.any(sum_v == 3) or sum_d1 == 3 or sum_d2 == 3:
         # Player 2 won!
         print("player 2 won")
-        return 1
+        return 2
     else:
         # None won
         return 0
@@ -202,8 +202,9 @@ def main():
             elif event.type == MOUSEBUTTONDOWN and player == -1:
                 X, Y = play(board, player)
             else:
-                X, Y = ai_player()
-            GRID[X][Y] = player            
+                # X, Y = ai_player()
+                X, Y = minmax(np.copy(GRID), True, MAX_DEPTH)
+            GRID[X][Y] = player
             check_state()
             display(ttt, board, player)
             player = (-1) * player
