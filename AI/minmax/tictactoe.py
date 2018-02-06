@@ -13,7 +13,7 @@ from copy import deepcopy
 ## OPTIONS ############################################################################################################
 
 # MINMAX OPTIONS
-MAX_DEPTH = 10
+MAX_DEPTH = 100
 
 # COLORS
 WHITE = (250,   250,    250 )
@@ -29,70 +29,55 @@ def heuristic(state, depth):
     """
     winner = check_state(state)
     if winner == 2:
-        return 10 - depth
+        return 10 - (MAX_DEPTH - depth)
+    elif winner == 1:
+        return (MAX_DEPTH - depth) - 10
     else:
-        return 10 + depth
+        return 0
+    
 
 def minmax(state, maxplayer, depth):
     """
     """
-    # print("MINMAX\nstate\n", state)
-    if depth == 0 or check_state(state) == 1:
-        # If we reach the max depth stop and compute heuristic
+    if check_state(state) != 0:
         return heuristic(state, depth)
-    # Get all moves from our state.
-    # np.argwhere returns arrays of indices.
 
-    moves = np.argwhere(state == 0)
-    # print("(state)\n{}\n({})\nmoves\n{}".format(state, maxplayer, moves))
+    coordX, coordY = np.where(state == 0)
+
     if maxplayer:
-        # print("\tMAXPLAYER")
-        # Init evaluations to min value
-        evaluations = -np.inf
-        # Iterate over each moves
-        for move in moves:
-            # print("(maxplayer)move: ", move)
-            X, Y = move
-            # print("\tMAXPLAYER X {} Y {}".format(X, Y))
+        evals = np.inf
+        for X, Y in zip(coordX, coordY):
             new_state = np.copy(state)
-            # print("\tMAXPLAYER new_state before cp {}".format(new_state))
             new_state[X, Y] = 1
-            # print("\tMAXPLAYER new_state after cp {}".format(new_state))
             heur = minmax(new_state, False, (depth - 1))
-            # print("\tMAXPLAYER heur {}".format(heur))
-            evaluations = np.maximum(evaluations, heur)
-            # print("\tMAXPLAYER evaluations {}".format(evaluations))
-            # input()
+            evals = np.minimum(evals, heur)
     else:
-        # print("\tMINPLAYER")        
-        evaluations = np.inf
-        for move in moves:
-            # print("(minplayer)move: ", move)
-            X, Y = move
+        evals = -np.inf
+        for X, Y in zip(coordX, coordY):
             new_state = np.copy(state)
             new_state[X, Y] = -1
             heur = minmax(new_state, True, (depth - 1))
-            evaluations = np.minimum(evaluations, heur)
-            # input()
-            # reduce()
-    # input()
-    return evaluations
+            evals = np.maximum(evals, heur)
+
+    return evals
 
 def get_best_move():
-    best_evaluations = -np.inf
-    best_move = None
-    moves = np.argwhere(GRID == 0)
-    print("moves\n", moves)
-    input()
-    for move in moves:
-        X, Y = move
+    global GRID, MAX_DEPTH
+
+    best_eval = -np.inf
+    best_move = list()
+
+    coordX, coordY = np.where(GRID == 0)
+
+    for X, Y in zip(coordX, coordY):
         new_state = np.copy(GRID)
-        new_state[Y][X] = 1
-        print("new_state\n", new_state)
-        evaluations = minmax(new_state, False, MAX_DEPTH)
-        if evaluations > best_evaluations:
-            best_evaluations = evaluations
-            best_move = move
+        new_state[X, Y] = 1
+        evals = minmax(new_state, False, MAX_DEPTH)
+
+        if evals > best_eval:
+            best_eval = evals
+            best_move = [X, Y]
+
     return best_move
 
 ## TICTACTOE ##########################################################################################################
@@ -126,20 +111,21 @@ def check_state(state):
     # Check vertical
     sum_v = np.sum(state, axis=0)
     # Check diagonals
-    sum_d1 = state[0][0] + state[1][1] + state[2][2]
-    sum_d2 = state[2][0] + state[1][1] + state[0][2]
+    sum_d1 = state[0, 0] + state[1, 1] + state[2, 2]
+    sum_d2 = state[2, 0] + state[1, 1] + state[0, 2]
     # Test if sums corresponds to a winner
     if np.any(sum_h == -3) or np.any(sum_v == -3) or sum_d1 == -3 or sum_d2 == -3:
         # Player 1 won!
-        # print("player 1 won")
         return 1
     elif np.any(sum_h == 3) or np.any(sum_v == 3) or sum_d1 == 3 or sum_d2 == 3:
         # Player 2 won!
-        # print("player 2 won")
         return 2
-    else:
-        # None won
+    elif np.any(state == 0):
+        # Still
         return 0
+    else:
+        # Draw
+        return -1
 
 def drawstatus(board, player):
     """
@@ -155,12 +141,25 @@ def drawstatus(board, player):
     board.fill(WHITE, (0, 300, 300, 25))
     board.blit(text,( 10, 300))
 
+def draw(board, X, Y, player):
+    """Draw a circle or a cross onto the board canvas and modify the grid.
+    """
+    centerY = (X * 100) + 50
+    centerX = (Y * 100) + 50
+    if player is -1:
+        pygame.draw.circle(board, BLACK, (centerX, centerY), 44, 2)
+    else:
+        pygame.draw.line(board, BLACK, (centerX - 33, centerY - 33),
+                        (centerX + 33, centerY + 33), 2)
+        pygame.draw.line(board, BLACK, (centerX + 33, centerY - 33),
+                        (centerX - 33, centerY + 33), 2)
+
 def display(ttt, board, player, X, Y):
     """Display the board.
 
     Args:
         ttt: is the actual game
-        board: is teh Surface background
+        board: is the Surface background
     """
     if X is not None or Y is not None:
         draw(board, X, Y, player)
@@ -190,34 +189,26 @@ def mouse_position(mouseX, mouseY):
         Y = 1
     else:
         Y = 2
-    return (X, Y)
-
-def draw(board, X, Y, player):
-    """Draw a circle or a cross onto the board canvas and modify the grid.
-    """
-    centerX = (X * 100) + 50
-    centerY = (Y * 100) + 50
-    if player is -1:
-        pygame.draw.circle(board, BLACK, (centerX, centerY), 44, 2)
-    else:
-        pygame.draw.line(board, BLACK, (centerX - 33, centerY - 33),
-                        (centerX + 33, centerY + 33), 2)
-        pygame.draw.line(board, BLACK, (centerX + 33, centerY - 33),
-                        (centerX - 33, centerY + 33), 2)
+    return X, Y
 
 def play(board, player):
     """Analyze the player click, display it and play.
 
     Args:
-        board:
-        player:
+        board: the Surface background
+        player: should be -1 (Player 1) or 1 (Player 2)
+
+    Returns:
+        X, Y: relative indexes for the grid array
     """
-    (mouseY, mouseX) = pygame.mouse.get_pos()
-    (X, Y) = mouse_position(mouseX, mouseY)
+    mouseX, mouseY = pygame.mouse.get_pos()
+    X, Y = mouse_position(mouseX, mouseY)
     return X, Y
 
 def main():
     """The game loop function."""
+    global GRID
+
     # Initialize some Pygame
     pygame.init()
     ttt = pygame.display.set_mode((300, 325))
@@ -234,19 +225,20 @@ def main():
         display(ttt, board, player, X, Y)
         for event in pygame.event.get():
             if event.type == QUIT:
-                loop = False
+                sys.exit()
             elif player == -1:
                 if event.type != MOUSEBUTTONDOWN: continue
-                print("Player 1 play")
                 X, Y = play(board, player)
             elif player == 1:
-                print("Player 2 play")
                 X, Y = get_best_move()
-            GRID[Y][X] = player
-            if check_state(GRID) in [1, 2]:
-                print("Gagné !")
-                sys.exit()
+            GRID[X, Y] = player
             player = (-1) * player
+            if check_state(GRID) != 0:
+                print("End of the game")
+                sys.exit()
+
+    # Quit
+    return
 
 
 if __name__ == '__main__':
