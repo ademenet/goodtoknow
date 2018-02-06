@@ -1,14 +1,12 @@
 """
 Tic Tac Toe game made for learning minmax algorithm.
 
-Tested only on MacOs Sierra.
+To play this game you need Pygame and Numpy. Check the `requirements.py` for more informations.
 """
 import sys
 import pygame
 import numpy as np
 from pygame.locals import *
-
-from copy import deepcopy
 
 ## OPTIONS ############################################################################################################
 
@@ -25,8 +23,7 @@ GRID = np.zeros((3, 3), dtype=int)
 ## MINMAX #############################################################################################################
 
 def heuristic(state, depth):
-    """
-    """
+    """Compute the score for minmax algorithm."""
     winner = check_state(state)
     if winner == 2:
         return 10 - depth
@@ -37,7 +34,16 @@ def heuristic(state, depth):
     
 
 def minmax(state, maxplayer, depth, player):
-    """
+    """Minmax algorithm.
+    
+    Args:
+        state: numpy array (3, 3) representing the current state
+        maxplayer: bool corresponding to max player turn (True) or not (False)
+        depth: the current depth, it increases till it reach MAX_DEPTH
+        player: -1 or 1, depending on which started
+
+    Return:
+        evals: the score for one state given
     """
     if check_state(state) != 0 or depth == MAX_DEPTH:
         return heuristic(state, depth)
@@ -62,8 +68,7 @@ def minmax(state, maxplayer, depth, player):
     return evals
 
 def get_best_move(player):
-    """
-    """
+    """Return the best move using the minmax algorithm."""
     global GRID, MAX_DEPTH
 
     best_eval = -np.inf
@@ -106,8 +111,7 @@ def init_board(ttt):
     return board
 
 def check_state(state):
-    """Check if there is a winner.
-    """
+    """Check if there is a winner."""
     # Check horizontal
     sum_h = np.sum(state, axis=1)
     # Check vertical
@@ -247,6 +251,7 @@ def main():
             GRID[X, Y] = player
             player = (-1) * player
             check_winner()
+
     # Quit
     return
 
