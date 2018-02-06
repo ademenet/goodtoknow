@@ -8,7 +8,7 @@ import pygame
 import numpy as np
 from pygame.locals import *
 
-# import deepcopy
+from copy import deepcopy
 
 ## OPTIONS ############################################################################################################
 
@@ -36,45 +36,60 @@ def heuristic(state, depth):
 def minmax(state, maxplayer, depth):
     """
     """
-    print("depth: ", depth)
+    # print("MINMAX\nstate\n", state)
     if depth == 0 or check_state(state) == 1:
         # If we reach the max depth stop and compute heuristic
         return heuristic(state, depth)
     # Get all moves from our state.
     # np.argwhere returns arrays of indices.
+
     moves = np.argwhere(state == 0)
-    print("moves: ", moves)
+    # print("(state)\n{}\n({})\nmoves\n{}".format(state, maxplayer, moves))
     if maxplayer:
+        # print("\tMAXPLAYER")
         # Init evaluations to min value
         evaluations = -np.inf
         # Iterate over each moves
         for move in moves:
+            # print("(maxplayer)move: ", move)
             X, Y = move
+            # print("\tMAXPLAYER X {} Y {}".format(X, Y))
             new_state = np.copy(state)
-            new_state[Y][X] = 1
+            # print("\tMAXPLAYER new_state before cp {}".format(new_state))
+            new_state[X, Y] = 1
+            # print("\tMAXPLAYER new_state after cp {}".format(new_state))
             heur = minmax(new_state, False, (depth - 1))
+            # print("\tMAXPLAYER heur {}".format(heur))
             evaluations = np.maximum(evaluations, heur)
+            # print("\tMAXPLAYER evaluations {}".format(evaluations))
+            # input()
     else:
+        # print("\tMINPLAYER")        
         evaluations = np.inf
         for move in moves:
+            # print("(minplayer)move: ", move)
             X, Y = move
             new_state = np.copy(state)
-            new_state[Y][X] = -1 
+            new_state[X, Y] = -1
             heur = minmax(new_state, True, (depth - 1))
             evaluations = np.minimum(evaluations, heur)
+            # input()
             # reduce()
+    # input()
     return evaluations
 
 def get_best_move():
     best_evaluations = -np.inf
     best_move = None
     moves = np.argwhere(GRID == 0)
+    print("moves\n", moves)
+    input()
     for move in moves:
         X, Y = move
         new_state = np.copy(GRID)
         new_state[Y][X] = 1
+        print("new_state\n", new_state)
         evaluations = minmax(new_state, False, MAX_DEPTH)
-        print(evaluations)
         if evaluations > best_evaluations:
             best_evaluations = evaluations
             best_move = move
