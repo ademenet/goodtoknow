@@ -5,13 +5,11 @@ To play this game you need Pygame and Numpy. Check the `requirements.py` for mor
 """
 import sys
 import pygame
+import argparse
 import numpy as np
 from pygame.locals import *
 
 ## OPTIONS ############################################################################################################
-
-# MINMAX OPTIONS
-MAX_DEPTH = 100
 
 # COLORS
 WHITE = (250,   250,    250 )
@@ -22,12 +20,12 @@ GRID = np.zeros((3, 3), dtype=int)
 
 ## MINMAX #############################################################################################################
 
-def heuristic(state, depth):
+def heuristic(state, depth, player):
     """Compute the score for minmax algorithm."""
     winner = check_state(state)
-    if winner == 2:
+    if winner == player:
         return 10 - depth
-    elif winner == 1:
+    elif winner == -player:
         return depth - 10
     else:
         return 0
@@ -46,7 +44,7 @@ def minmax(state, maxplayer, depth, player):
         evals: the score for one state given
     """
     if check_state(state) != 0 or depth == MAX_DEPTH:
-        return heuristic(state, depth)
+        return heuristic(state, depth, player)
 
     coordX, coordY = np.where(state == 0)
 
@@ -122,16 +120,16 @@ def check_state(state):
     # Test if sums corresponds to a winner
     if np.any(sum_h == -3) or np.any(sum_v == -3) or sum_d1 == -3 or sum_d2 == -3:
         # Player 1 won!
-        return 1
+        return -1
     elif np.any(sum_h == 3) or np.any(sum_v == 3) or sum_d1 == 3 or sum_d2 == 3:
         # Player 2 won!
-        return 2
+        return 1
     elif np.any(state == 0):
         # Still
         return 0
     else:
         # Draw
-        return -1
+        return 10
 
 def drawstatus(board, player):
     """Display a message to indicate which player is currently playing."""
@@ -222,7 +220,7 @@ def check_winner():
         sys.exit()
 
 
-def main():
+def main(args):
     """The game loop function."""
     global GRID
 
@@ -234,7 +232,10 @@ def main():
 
     # Initialize some game variables
     loop = True
-    player = -1 # Choose first player (-1 or 1)
+    if args['startscd']:
+        player = 1
+    else:
+        player = -1
     X, Y = None, None
 
     # Loop game
@@ -255,6 +256,17 @@ def main():
     # Quit
     return
 
+## MAIN ###############################################################################################################
 
 if __name__ == '__main__':
-    main()
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="This is a Tic Tac Toe game made for learning minmax algorithm. Enjoy!")
+    parser.add_argument("--maxdepth", type=int, default=100, help="Define the max depth for minmax algorithm. The more the better the AI is. Set it very low (1 or 2 for example) for a dumb AI.")
+    parser.add_argument("--startscd", default=False, action='store_true', help="The human player start second.")
+    args = vars(parser.parse_args())
+    
+    # Set the global max depth
+    MAX_DEPTH = args['maxdepth']
+
+    # Call the main game
+    main(args)
