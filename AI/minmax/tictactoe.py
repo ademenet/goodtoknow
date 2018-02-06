@@ -29,39 +29,41 @@ def heuristic(state, depth):
     """
     winner = check_state(state)
     if winner == 2:
-        return 10 - (MAX_DEPTH - depth)
+        return 10 - depth
     elif winner == 1:
-        return (MAX_DEPTH - depth) - 10
+        return depth - 10
     else:
         return 0
     
 
-def minmax(state, maxplayer, depth):
+def minmax(state, maxplayer, depth, player):
     """
     """
-    if check_state(state) != 0:
+    if check_state(state) != 0 or depth == MAX_DEPTH:
         return heuristic(state, depth)
 
     coordX, coordY = np.where(state == 0)
 
     if maxplayer:
-        evals = np.inf
-        for X, Y in zip(coordX, coordY):
-            new_state = np.copy(state)
-            new_state[X, Y] = 1
-            heur = minmax(new_state, False, (depth - 1))
-            evals = np.minimum(evals, heur)
-    else:
         evals = -np.inf
         for X, Y in zip(coordX, coordY):
             new_state = np.copy(state)
-            new_state[X, Y] = -1
-            heur = minmax(new_state, True, (depth - 1))
+            new_state[X, Y] = player
+            heur = minmax(new_state, False, (depth + 1), player)
             evals = np.maximum(evals, heur)
+    else:
+        evals = np.inf
+        for X, Y in zip(coordX, coordY):
+            new_state = np.copy(state)
+            new_state[X, Y] = -player
+            heur = minmax(new_state, True, (depth + 1), player)
+            evals = np.minimum(evals, heur)
 
     return evals
 
-def get_best_move():
+def get_best_move(player):
+    """
+    """
     global GRID, MAX_DEPTH
 
     best_eval = -np.inf
@@ -71,8 +73,8 @@ def get_best_move():
 
     for X, Y in zip(coordX, coordY):
         new_state = np.copy(GRID)
-        new_state[X, Y] = 1
-        evals = minmax(new_state, False, MAX_DEPTH)
+        new_state[X, Y] = player
+        evals = minmax(new_state, False, 0, player)
 
         if evals > best_eval:
             best_eval = evals
@@ -128,22 +130,18 @@ def check_state(state):
         return -1
 
 def drawstatus(board, player):
-    """
-    """
+    """Display a message to indicate which player is currently playing."""
     if player is -1:
         message = "Player 1"
-    elif player is 1:
-        message = "Player 2"
     else:
-        message = "Tictactoe!"
+        message = "Player 2"
     font = pygame.font.Font(None, 24)
     text = font.render(message, 1, (0,0,0))
     board.fill(WHITE, (0, 300, 300, 25))
     board.blit(text,( 10, 300))
 
 def draw(board, X, Y, player):
-    """Draw a circle or a cross onto the board canvas and modify the grid.
-    """
+    """Draw a circle or a cross onto the board canvas and modify the grid."""
     centerY = (X * 100) + 50
     centerX = (Y * 100) + 50
     if player is -1:
@@ -155,7 +153,9 @@ def draw(board, X, Y, player):
                         (centerX - 33, centerY + 33), 2)
 
 def display(ttt, board, player, X, Y):
-    """Display the board.
+    """Display the game.
+
+    Call draw if we have set X and Y. Otherwise just draw the background and the status.
 
     Args:
         ttt: is the actual game
@@ -168,14 +168,14 @@ def display(ttt, board, player, X, Y):
     pygame.display.flip()
 
 def mouse_position(mouseX, mouseY):
-    """Determine which cell is clicked by its cell coordinates.
+    """Transform mouses coordinates into array indexes.
 
     Args:
-        mouseX: mouse position on X
-        mouseY: mouse position on Y
+        mouseX: mouse position on X, from 0 to 300
+        mouseY: mouse position on Y, from 0 to 300
 
     Return:
-        (X, Y): position on the board
+        X, Y: position on the board. Each one is either 0, 1 or 2.
     """
     if mouseY < 100:
         X = 0
@@ -192,18 +192,31 @@ def mouse_position(mouseX, mouseY):
     return X, Y
 
 def play(board, player):
-    """Analyze the player click, display it and play.
+    """Get human player turn.
 
     Args:
         board: the Surface background
         player: should be -1 (Player 1) or 1 (Player 2)
 
     Returns:
-        X, Y: relative indexes for the grid array
+        X, Y: array indexes for the grid array
     """
     mouseX, mouseY = pygame.mouse.get_pos()
     X, Y = mouse_position(mouseX, mouseY)
     return X, Y
+
+def check_winner():
+    global GRID
+    winner = check_state(GRID)
+    if winner != 0:
+        if winner == 1:
+            print("Player 1 won!")
+        elif winner == 2:
+            print("Player 2 won!")
+        elif winner == -1:
+            print("Draw game")
+        sys.exit()
+
 
 def main():
     """The game loop function."""
@@ -230,13 +243,10 @@ def main():
                 if event.type != MOUSEBUTTONDOWN: continue
                 X, Y = play(board, player)
             elif player == 1:
-                X, Y = get_best_move()
+                X, Y = get_best_move(player)
             GRID[X, Y] = player
             player = (-1) * player
-            if check_state(GRID) != 0:
-                print("End of the game")
-                sys.exit()
-
+            check_winner()
     # Quit
     return
 
